@@ -1,3 +1,4 @@
-export function multiply(a: number, b: number): Promise<number> {
-  return Promise.resolve(a * b);
-}
+export { AuthProvider } from './contexts/AuthProvider';
+export type { User } from './interfaces/User';
+export type { AuthConfig } from './interfaces/AuthConfig';
+export { useAuth } from './hooks/useAuth';
