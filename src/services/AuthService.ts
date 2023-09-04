@@ -2,44 +2,53 @@ import TokenStorage from '../utils/TokenStorage';
 import type { AuthConfig, User } from 'react-native-laravel-sanctum';
 
 class AuthService {
-  private static config: AuthConfig | null = null;
+  private readonly config: AuthConfig | null;
 
-  public constructor(authConfig: AuthConfig) {
-    if (authConfig === null) throw new Error('AuthConfig is null');
-    AuthService.config = authConfig;
+  constructor(authConfig: AuthConfig) {
+    if (authConfig === null) {
+      throw new Error('AuthConfig is null');
+    }
+    this.config = authConfig;
+  }
+
+  private async handleResponse(response: Response) {
+    if (!response.ok) {
+      throw new Error('The request was not successful');
+    }
   }
 
   async login(
     email: string,
     password: string,
     deviceName: string
-  ): Promise<boolean | null> {
+  ): Promise<boolean> {
     try {
-      if (AuthService.config === null) throw new Error('AuthConfig is null');
+      if (!this.config) {
+        throw new Error('AuthConfig is null');
+      }
 
-      const response = await fetch(AuthService.config.loginUrl, {
+      const response = await fetch(this.config.loginUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: email,
-          password: password,
-          deviceName: deviceName,
+          email,
+          password,
+          deviceName,
         }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        const { token } = data;
-        if (token) {
-          await TokenStorage.saveToken(token);
-          return true;
-        } else {
-          return false;
-        }
+      await this.handleResponse(response);
+
+      const data = await response.json();
+      const { token } = data;
+
+      if (token) {
+        await TokenStorage.saveToken(token);
+        return true;
       } else {
-        throw new Error('The request was not successful');
+        return false;
       }
     } catch (error) {
       console.error('Fehler beim Einloggen:', error);
@@ -49,11 +58,17 @@ class AuthService {
 
   async logout(): Promise<boolean> {
     try {
-      if (AuthService.config === null) throw new Error('AuthConfig is null');
-      const currentToken = await TokenStorage.getToken();
-      if (currentToken === null) return true;
+      if (!this.config) {
+        throw new Error('AuthConfig is null');
+      }
 
-      const response = await fetch(AuthService.config.logoutUrl, {
+      const currentToken = await TokenStorage.getToken();
+
+      if (currentToken === null) {
+        return true;
+      }
+
+      const response = await fetch(this.config.logoutUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,25 +76,28 @@ class AuthService {
         },
       });
 
-      if (response.ok) {
-        await TokenStorage.removeToken();
-        return true;
-      } else {
-        throw new Error('The request was not successful');
-      }
+      await this.handleResponse(response);
+      await TokenStorage.removeToken();
+      return true;
     } catch (error) {
-      console.error('Fehler beim Einloggen:', error);
+      console.error('Fehler beim Ausloggen:', error);
       throw error;
     }
   }
 
   async getUser(): Promise<User | null> {
-    if (AuthService.config === null) throw new Error('AuthConfig is null');
-    const currentToken = await TokenStorage.getToken();
-    if (currentToken === null) return null;
-    console.log(`Bearer ${currentToken}`);
     try {
-      const response = await fetch(AuthService.config.userUrl, {
+      if (!this.config) {
+        throw new Error('AuthConfig is null');
+      }
+
+      const currentToken = await TokenStorage.getToken();
+
+      if (currentToken === null) {
+        return null;
+      }
+
+      const response = await fetch(this.config.userUrl, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -87,18 +105,14 @@ class AuthService {
         },
       });
 
-      if (response.ok) {
-        const user = await response.json();
-        if (user) {
-          return user;
-        } else {
-          return null;
-        }
-      } else if (response.status === 401) {
-        await TokenStorage.removeToken();
-        return null;
+      await this.handleResponse(response);
+
+      const user = await response.json();
+
+      if (user) {
+        return user;
       } else {
-        throw new Error('The request was not successful');
+        return null;
       }
     } catch (error) {
       console.error('Fehler beim Abrufen des Benutzers:', error);
