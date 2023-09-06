@@ -10,10 +10,9 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ config, children }) => {
   const [currentConfig, setCurrentConfig] = useState<AuthConfig>(config);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [authService, setAuthService] = useState<AuthService>();
+  const [authService, setAuthService] = useState<AuthService | undefined>();
 
   useEffect(() => {
-    console.log('checking if authenticated');
     if (authService) {
       checkIfAuthenticated();
     }
@@ -39,7 +38,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ config, children }) => {
         }
       });
     } catch (error) {
-      console.error('Fehler beim Überprüfen des Tokens:', error);
+      console.error('Error while checking token:', error);
       throw error;
     }
   };
@@ -49,7 +48,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ config, children }) => {
     try {
       return await authService.login(email, password, deviceName);
     } catch (error) {
-      console.error('Fehler beim Einloggen:', error);
+      console.error('Error during login:', error);
       throw error;
     }
   };
@@ -62,7 +61,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ config, children }) => {
         return fetchedUser;
       });
     } catch (error) {
-      console.error('Fehler beim Abrufen des Benutzers:', error);
+      console.error('Error while fetching user:', error);
       throw error;
     }
   };
@@ -77,7 +76,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ config, children }) => {
         return apiToken;
       })
       .catch((error) => {
-        console.error('Fehler beim Abrufen des Tokens:', error);
+        console.error('Error while getting token:', error);
         throw error;
       })
       .finally(() => {
@@ -90,7 +89,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ config, children }) => {
     try {
       return await authService.logout();
     } catch (error) {
-      console.error('Fehler beim Ausloggen:', error);
+      console.error('Error during logout:', error);
       throw error;
     }
   };

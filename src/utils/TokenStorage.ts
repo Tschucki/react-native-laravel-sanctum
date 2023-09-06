@@ -7,7 +7,7 @@ class TokenStorage {
     try {
       await SecureStore.setItemAsync(TokenStorage.TOKEN_KEY, token);
     } catch (error) {
-      console.error('Fehler beim Speichern des verschlüsselten Tokens:', error);
+      console.error('Error while saving the encrypted token:', error);
       throw error;
     }
   }
@@ -19,7 +19,7 @@ class TokenStorage {
       );
       return encryptedToken || null;
     } catch (error) {
-      console.error('Fehler beim Abrufen des verschlüsselten Tokens:', error);
+      console.error('Error while retrieving the encrypted token:', error);
       throw error;
     }
   }
@@ -28,7 +28,7 @@ class TokenStorage {
     try {
       await SecureStore.deleteItemAsync(TokenStorage.TOKEN_KEY);
     } catch (error) {
-      console.error('Fehler beim Entfernen des verschlüsselten Tokens:', error);
+      console.error('Error while removing the encrypted token:', error);
       throw error;
     }
   }
