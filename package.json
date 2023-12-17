@@ -154,6 +154,7 @@
     ]
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.21.0",
     "expo-secure-store": "^12.3.1"
   }
 }
