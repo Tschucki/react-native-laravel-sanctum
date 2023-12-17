@@ -31,6 +31,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "prepack": "bob build",
+    "example": "yarn --cwd example",
     "release": "release-it"
   },
   "keywords": [
