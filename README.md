@@ -32,6 +32,15 @@ As the package relies on `expo-secure-store` you will need to create a new build
 
 Wrap your app with `AuthProvider` and pass the `config` object as a prop.
 
+Make sure your validation rules, within your controller look like this: 
+```php
+[
+  'email' => 'required|email',
+  'password' => 'required',
+  'deviceName' => 'required',
+];
+```
+
 ```js
 import { AuthProvider } from 'react-native-laravel-sanctum';
 
@@ -41,6 +50,7 @@ export default function App() {
     loginUrl: 'https://your-awesome-domain/api/sanctum/token',
     logoutUrl: 'https://your-awesome-domain/api/logout',
     userUrl: 'https://your-awesome-domain/api/user',
+    csrfTokenUrl: 'https://your-awesome-domain/sanctum/csrf-cookie'
   };
 
   return (
